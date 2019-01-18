@@ -20,7 +20,7 @@ checkoutModel = {};
 
 // Select method checkes
 checkoutModel.checkout = function (data, callback) {
-    const acceptableMethods = ['post', 'get', 'put', 'delete'];
+    const acceptableMethods = ['post', 'get'];
     if (acceptableMethods.indexOf(data.method) > -1) {
         checkoutModel._checkout[data.method](data, callback)
     } else {
