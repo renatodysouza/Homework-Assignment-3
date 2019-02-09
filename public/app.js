@@ -29,6 +29,7 @@ app.client.request = function (headers, path, method, queryStringObject, payload
     queryStringObject = typeof (queryStringObject) == 'object' && queryStringObject !== null ? queryStringObject : {};
     payload = typeof (payload) == 'object' && payload !== null ? payload : {};
     callback = typeof (callback) == 'function' ? callback : false;
+
     // For each query string parameter sent, add it to the path
     let requestUrl = path + '?';
     let counter = 0;
@@ -41,8 +42,6 @@ app.client.request = function (headers, path, method, queryStringObject, payload
             }
             // Add the key and value
             requestUrl += queryKey + '=' + queryStringObject[queryKey];
-
-
 
         }
 
@@ -94,6 +93,7 @@ app.client.request = function (headers, path, method, queryStringObject, payload
 // Bind the form
 // Form create user
 app.bindFormsCreateUser = function () {
+
     if (document.getElementById("accountCreate")) {
 
         document.getElementById("accountCreate").addEventListener("submit", function (e) {
@@ -148,6 +148,7 @@ app.bindFormsCreateUser = function () {
 
 // Create session 
 app.createSession = function () {
+
     if (document.getElementById('login_create')) {
         document.getElementById('login_create').addEventListener("submit", function (e) {
             // Stop it from submitting
@@ -157,7 +158,7 @@ app.createSession = function () {
             const method = this.method.toUpperCase();
 
             // Hide the error message (if it's currently shown due to a previous error)
-            document.querySelector("#"+formId+" .formError").style.display = 'hidden';
+            document.querySelector("#" + formId + " .formError").style.display = 'hidden';
 
             // Turn the inputs into a payload
 
@@ -168,13 +169,13 @@ app.createSession = function () {
 
             for (var i = 0; i < elements.length; i++) {
                 if (elements[i].type !== 'submit') {
-                   
+
                     payload[elements[i].name] = elements[i].value;
 
                 };
 
             }
-            
+
             // Call the API
             app.client.request(undefined, path, method, undefined, payload, function (statusCode, responsePayload) {
                 // Display an error on the form if needed
@@ -231,7 +232,6 @@ app.deleteSession = function () {
 
 
                     } else {
-                        console.log(responsePayload);
                         // If successful, send to form response processor
                         app.formResponseProcessor(idMenu, undefined, responsePayload);
 
@@ -254,15 +254,14 @@ app.deleteSession = function () {
 
 // Bind cart information
 // Set user cart
-app.setCartData = function(payload) {
+app.setCartData = function (payload) {
     // Call the api
-    app.client.request(undefined,'/api/cart', 'post', undefined,payload, function(statusCode, responsePayload){
-         if(statusCode !== 200) {
+    app.client.request(undefined, '/api/cart', 'post', undefined, payload, function (statusCode, responsePayload) {
+        if (statusCode !== 200) {
 
-         }else {
-             console.log(responsePayload);
-             
-         }
+        } else {
+
+        }
     });
 
 }
@@ -270,7 +269,7 @@ app.setCartData = function(payload) {
 //  Get user cart data
 app.getCartData = function () {
 
-     // Call the API
+    // Call the API
     app.client.request(undefined, '/api/cart', 'get', undefined, undefined, function (statusCode, responsePayload) {
         // Display an error on the form if needed
         if (statusCode !== 200) {
@@ -278,7 +277,7 @@ app.getCartData = function () {
 
         } else {
             // If successful, send to form response processor
-             return responsePayload;
+            return responsePayload;
         }
     });
     //
@@ -286,31 +285,31 @@ app.getCartData = function () {
 
 // Get the session token from localstorage and set it in the app.config object
 app.getSessionToken = function () {
+
     const tokenString = localStorage.getItem('token');
+
     if (typeof (tokenString) == 'string' && tokenString !== 'false') {
         try {
             const token = JSON.parse(tokenString);
             app.config.sessionToken = token;
             if (typeof (tokenString) == 'string') {
                 app.setLoggedInClass(true);
-
-       
                 return token;
 
             } else {
                 app.setLoggedInClass(false);
-               
+
                 return false;
             }
 
         } catch (e) {
-           
+
             app.config.sessionToken = false;
             app.setLoggedInClass(false);
 
         }
     } else {
-       
+
         app.setLoggedInClass(false);
     }
 
@@ -318,22 +317,28 @@ app.getSessionToken = function () {
 
 // Set or remove the loggedin class from the body
 app.setLoggedInClass = function (add) {
-    let targetCart = document.getElementById('cart-menu');
-    let targetLogout = document.getElementById('delete-session');
-    let targetLogin = document.getElementById('login');
-    let targetWelcome_Msg = document.getElementById('welcome');
+    var targetCart = document.getElementById('cart-menu');
+    var targetLogout = document.getElementById('delete-session');
+    var targetSignup = document.getElementById('signup');
+    var targetLogin = document.getElementById('login');
+    var targetAdminMenu = document.getElementById('admin-menu');
+    var targetWelcome_Msg = document.getElementById('welcome');
 
 
     if (add) {
+        targetAdminMenu.style.display = 'none';
+        targetCart.style.display = 'block';
         targetCart.style.display = 'block';
         targetLogin.style.display = 'none';
+        targetSignup.style.display = 'none';
         targetWelcome_Msg.innerHTML = '<h4>Olá User</h3>';
         targetLogout.style.display = 'block';
 
     } else {
-        
+        targetAdminMenu.style.display = 'none';
         targetLogin.style.display = 'block';
         targetLogout.style.display = 'none';
+        targetSignup.style.display = 'block';
 
 
     }
@@ -351,14 +356,12 @@ app.setSessionToken = function (token) {
 
         app.config.sessionToken = token;
         const tokenString = JSON.stringify(token);
+
+
         localStorage.setItem('token', tokenString);
         app.setLoggedInClass(true);
-        
-        if (typeof (token) == 'object') {
-            app.setLoggedInClass(false);
-        } else {
-            app.setLoggedInClass(false);
-        }
+        app.resetToken();
+
 
     } else {
         app.config.sessionToken = false;
@@ -366,6 +369,21 @@ app.setSessionToken = function (token) {
 
 
 };
+
+// Reset token 
+app.resetToken = function () {
+
+    setInterval(() => {
+         localStorage.removeItem('token');
+         app.renewToken(function(token){
+             
+         });
+        localStorage.removeItem('token');
+
+
+    }, 55 * 660000);
+
+}
 
 // Renew the token 
 app.renewToken = function (callback) {
@@ -425,17 +443,18 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
         alert('Your account was create with sucess.');
         // Redirec to home url
         window.location.href = '/session/create';
-        
-       
+
+
     }
     if (formId == 'login_create') {
         // Set token in local storage
         app.setSessionToken(responsePayload.tokenId);
 
-        app.getSessionToken();
         // Redirect to menu
-        window.location.href = '/';
-       
+        // window.location.href = '/';
+         // Redirec to home url
+         window.location.href = '/';
+
     }
     if (formId == 'delete-session') {
         // Delete token in local storage 
@@ -445,7 +464,7 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
 
 
         // Redirec to home url
-            window.location.href = '/';
+        window.location.href = '/';
 
 
     }
@@ -453,37 +472,37 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
 // Create effect houver in imag product
 app.btnCart = function () {
     if (document.getElementsByClassName('btn-small')) {
-           const target = document.getElementsByClassName('btn-small');
-           const length = target.length;         
-           for(let i= 0; i < length; i++) {
-              
-              target[i].addEventListener('click', function(e) {
-                  // Verify if user is logged
-                  if(app.getSessionToken() !== undefined){
-                      // Open modal
-                     document.getElementById('modal1').style.display = 'block';
-                                    
+        const target = document.getElementsByClassName('btn-small');
+        const length = target.length;
+        for (let i = 0; i < length; i++) {
 
-                  }else {
-                        // Redirect from login
-                        window.location.href = '/login';
-                  }
-                  
-              })
-               
+            target[i].addEventListener('click', function (e) {
+                // Verify if user is logged
+                if (app.getSessionToken() !== undefined) {
+                    // Open modal
+                    document.getElementById('modal1').style.display = 'block';
 
-           }         
-          
-       
-        
-        };
+
+                } else {
+                    // Redirect from login
+                    window.location.href = '/login';
+                }
+
+            })
+
+
+        }
+
+
+
+    };
 
 };
 
 // Close modal 
-app.closeModal = function(){
-    if(document.getElementById('close')) {
-        document.getElementById('close').addEventListener('click', function(){
+app.closeModal = function () {
+    if (document.getElementById('close')) {
+        document.getElementById('close').addEventListener('click', function () {
             document.getElementById('modal1').style.display = 'none';
         });
     }
@@ -491,47 +510,51 @@ app.closeModal = function(){
 
 
 // Get all products
-app.getProduct = function() {
+app.getProduct = function () {
+
     // Call the api
-    app.client.request(undefined, '/api/menus', 'get', undefined, undefined, function(statusCode, responsePayload){
-        if(statusCode !== 200) {
+    app.client.request(undefined, '/api/menus', 'get', undefined, undefined, function (statusCode, responsePayload) {
+        if (statusCode !== 200) {
 
         } else {
+
             // Verify quantity of the menus
-            const menuLength = responsePayload.length;
-            for(let i = 0; i < menuLength; i++) {
-                // Print products in the index
-                let tewmp = document.querySelector('#products').innerHTML += `
-            <div class="row container-imag">
-            <div class="col s6">
-            <a href=""> <img class="responsive-img" src="public/img/pizza.jpeg">
-                <div class="fig-prod">
-                    <figcaption class="fig-prod-text">Pizza Margarita <span>15,50 €</span></figcaption>
-                    <a id="product-name" data-target="modal1" class="waves-effect waves-light btn-small modal-trigger">Order Now</a>
-                
-                </div>
+            const menuLength = responsePayload.length / 2;
+
+            for (let menu of responsePayload) {
+
+                try {
+                    // Print products in the index
+                    let tewmp = document.querySelector('#products').innerHTML += `
+            
                 <div class="col s6">
                 <a href=""> <img class="responsive-img" src="public/img/pizza.jpeg">
-                    <div class="fig-prod">
-                        <figcaption class="fig-prod-text">Pizza Margarita <span>15,50 €</span></figcaption>
+                    <div class="fig-prod" id=${menu.id}>
+                        <figcaption class="fig-prod-text">${menu.product} <span>${menu.price} €</span></figcaption>
                         <a id="product-name" data-target="modal1" class="waves-effect waves-light btn-small modal-trigger">Order Now</a>
-                    
-                </div>
-            </a>
-            </div>
-            </div>`
+                   </div>
+      
+                </a>
+               
+               </div>`
+
+                } catch (error) {
+
+                }
+
 
             }
-                  
-            
-    
 
-            
         }
     });
 
 };
 
+// Verify if user is logged
+app.verifyLoginStatus = function () {
+    let session = app.getSessionToken();
+
+}
 // Init (bootstrapping)
 app.init = function () {
     // Bind all create user form submissions
@@ -542,11 +565,12 @@ app.init = function () {
     app.btnCart();
     app.closeModal();
     app.getProduct();
-    
-    
- 
-    
-    
+    app.resetToken();
+    // app.verifyLoginStatus();
+
+
+
+
 
 };
 

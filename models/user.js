@@ -37,16 +37,24 @@ usersModel._users = {};
 // Optional data: none
 
 usersModel._users.post = function (data, callback) {
+     
     // Check all required fields are filled out
     const firstName = typeof (data.payload.firstName) == 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false;
+    
     const lastName = typeof (data.payload.lastName) == 'string'
         && data.payload.lastName.trim().length > 0 ? data.payload.lastName.trim() : false;
+    
     const streetAdress = typeof (data.payload.streetAdress) == 'string' && data.payload.streetAdress.trim().length > 7 ? data.payload.streetAdress.trim() : false;
+    
     const phone = typeof (data.payload.phone) == 'string' && data.payload.phone.trim().length > 5 ? data.payload.phone.trim() : false;
+    
     const email = typeof (data.payload.email) == 'string' && data.payload.email.trim().length > 5 ? data.payload.email.trim() : false;
+    
     const password = typeof (data.payload.password) == 'string'
         && data.payload.password.trim().length > 0 ? data.payload.password.trim() : false;
+    
     const tosAgreement = typeof (data.payload.tosAgreement) == 'boolean' && data.payload.tosAgreement == 'true' ? true : true;
+    
     if (firstName && lastName && streetAdress && phone && email && password && tosAgreement) {
         const pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
         const emailRegex = pattern.test(email);
@@ -115,6 +123,9 @@ usersModel._users.post = function (data, callback) {
 // Optional data none
 
 usersModel._users.get = function (data, callback) {
+
+    
+
     // Check if the phone provider is valid
     const phone = typeof (data.queryString.phone) == 'string' && data.queryString.phone.trim().length > 0 ? data.queryString.phone.trim() : false;
     if (phone) {

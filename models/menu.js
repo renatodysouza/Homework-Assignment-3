@@ -100,7 +100,7 @@ menuModel._menus.post = function (data, callback) {
                     } else {
                         console.log('Error for generating id automaticament');
                     }
-                }); 
+                });
 
             } else {
                 callback(400, { 'Error': 'Missing required fields' });
@@ -123,53 +123,44 @@ menuModel._menus.post = function (data, callback) {
 
 menuModel._menus.get = function (data, callback) {
 
-    // Verify if user is logout -(verify if token exist and is valid)
-    vToken._tokens.get(data, function (status, dataToken) {
-        if (status == '200' && dataToken) {
+    // Container get one script
+    const id = typeof (Number(data.queryString.id)) == 'number' && data.queryString.id > 0 ? data.queryString.id : false;
+    if (id) {
+        _data.read('menus', id, function (err, dataM) {
+            if (!err) {
+                callback(200, dataM);
+            } else {
+                callback(500, { 'Error': 'could not find Menu with this id' });
+            }
+        });
 
-            // Container get one script
-            const id = typeof (Number(data.queryString.id)) == 'number' && data.queryString.id > 0 ? data.queryString.id : false;
-            if (id) {
-                _data.read('menus', id, function (err, dataM) {
-                    if (!err) {
-                        callback(200, dataM);
-                    } else {
-                        callback(500, { 'Error': 'could not find Menu with this id' });
-                    }
+
+    } else {
+        // Menu -Method get - list
+        // Require data: none  // Container get-all script
+        _data.list('menus', function (err, menusData) {
+            if (!err) {
+                const menuD = [];
+
+                menusData.forEach(function (dataMenu) {
+
+                    _data.read('menus', dataMenu, function (err, dataM) {
+                        menuD.push(dataM);
+                    });
+                    
                 });
+                setTimeout(function () {
+
+                    callback(200, menuD);
+                    
+                }, 100);
 
 
             } else {
-                // Menu -Method get - list
-                // Require data: none  // Container get-all script
-                _data.list('menus', function (err, menusData) {
-                    if (!err) {
-                        const menuD = [];
-                        menusData.forEach(function (dataMenu) {
-                            _data.read('menus', dataMenu, function (err, dataM) {
-                                menuD.push(dataM);
-                            });
-                        });
-                        setTimeout(function () {
-                            callback(200, menuD);
-                        }, 100);
-
-
-                    } else {
-                        callback(err);
-                    }
-                });
-
-
+                callback(err);
             }
-
-        } else {
-            callback(400, { 'Error': 'Missing required token, or token is invalid' });
-        }
-
-    });
-
-
+        });
+    }
 }
 
 // Menu -Method put
@@ -201,9 +192,9 @@ menuModel._menus.put = function (data, callback) {
                     'id': id,
 
                 }
-                
-                
-              
+
+
+
                 // deleting menus
                 _data.update('menus', id, menuObject, function (err) {
                     if (!err) {
