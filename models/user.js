@@ -37,7 +37,6 @@ usersModel._users = {};
 // Optional data: none
 
 usersModel._users.post = function (data, callback) {
-
     // Check all required fields are filled out
     const firstName = typeof (data.payload.firstName) == 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false;
     const lastName = typeof (data.payload.lastName) == 'string'
@@ -48,7 +47,6 @@ usersModel._users.post = function (data, callback) {
     const password = typeof (data.payload.password) == 'string'
         && data.payload.password.trim().length > 0 ? data.payload.password.trim() : false;
     const tosAgreement = typeof (data.payload.tosAgreement) == 'boolean' && data.payload.tosAgreement == 'true' ? true : true;
-
     if (firstName && lastName && streetAdress && phone && email && password && tosAgreement) {
         const pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
         const emailRegex = pattern.test(email);
@@ -57,11 +55,11 @@ usersModel._users.post = function (data, callback) {
             // Make shure that user doesnt already exists
 
             _data.read('users', phone, function (err, data) {
-                if (err) {
-                    // Verify ifemail exist
+                if (err || data == undefined) {
+                    // Verify if email exist
                     _data.emailExist(email, function (exists) {
                         if (exists) {
-                            callback(500, { 'error': 'email already exist' });
+                            callback(400, { 'error': 'email already exist' });
                         } else {
                             // Hash the password
                             const hashPassword = helpers.hash(password);
@@ -78,9 +76,11 @@ usersModel._users.post = function (data, callback) {
                                 };
                                 // Storing the user
                                 _data.create('users', phone, userObject, function (err) {
+                                     console.log(err);
                                     if (!err) {
                                         callback(200, userObject);
                                     } else {
+                                        console.log(err);
                                         debug(err);
                                         callback(500, { 'error': 'Could not create the new user' });
                                     }
@@ -116,7 +116,7 @@ usersModel._users.post = function (data, callback) {
 
 usersModel._users.get = function (data, callback) {
     // Check if the phone provider is valid
-    const phone = typeof (data.queryString.phone) == 'string' && data.queryString.phone.trim() > 0 ? data.queryString.phone.trim() : false;
+    const phone = typeof (data.queryString.phone) == 'string' && data.queryString.phone.trim().length > 0 ? data.queryString.phone.trim() : false;
     if (phone) {
 
         // Get token from the headers

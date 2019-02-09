@@ -56,12 +56,23 @@ tokenModel._tokens.post = function (data, callback) {
                         if (!err && listToken.length > 0) {
 
                             // Listing tokens
+                            var counter = 0;
+                            var limit = listToken.length;
+                            var dataP = [];
                             listToken.forEach(function (lToken) {
+
                                 _data.read('tokens', lToken, function (err, dataTk) {
                                     if (!err) {
-                                        if (dataTk.phone == phone) {
-                                            // Deleting older token
-                                            _data.delete('tokens', dataTk.tokenId, function (err) {
+
+                                        if(dataTk.phone == phone) {
+                                            dataP.push(dataTk.phone);
+                                        }
+
+                                        counter++;
+
+                                        if(counter == limit && dataP.length > 0) {
+                                             // Deleting older token
+                                             _data.delete('tokens', dataTk.tokenId, function (err) {
                                                 if (!err) {
                                                     // Store data 
                                                     _data.create('tokens', tokenId, tokenObject, function (err) {
@@ -75,6 +86,11 @@ tokenModel._tokens.post = function (data, callback) {
                                                     callback(err);
                                                 }
                                             });
+
+                                        }
+
+                                          if (dataTk.phone == phone) {
+                                           
                                         } else {
                                             // Store data 
                                             _data.create('tokens', tokenId, tokenObject, function (err) {
@@ -185,11 +201,12 @@ tokenModel._tokens.put = function (data, callback) {
 // Required data: token
 // Optional data: none
 tokenModel._tokens.delete = function (data, callback) {
+    console.log(data);
     const tokenId = typeof (data.queryString.id) == 'string' ? data.queryString.id : false;
     if (tokenId) {
         // Lookup  the token
         _data.read('tokens', tokenId, function (err, dataToken) {
-            if (!err) {
+            if (!err && dataToken) {
                 // Deleting token
                 _data.delete('tokens', tokenId, function (err) {
                     if (!err) {

@@ -3,3 +3,152 @@
 * css style
 *
  */
+
+ h1 {
+     font-size: 40px;
+ }
+
+ nav .brand-logo {
+     padding-left: 20px;
+ }
+
+ 
+ main {
+    height:79%;
+    padding-left: 20px;
+
+ }
+
+ .footer {
+    padding-left: 10px;
+
+ }
+
+ .form {
+     padding: 140px;
+ }
+
+ .btn {
+    width: 30%;
+    height: 46px;
+    padding: 5px;
+ }
+ .btn-small{
+    margin-top: -47px;
+    float: right;
+    margin-right: 18px;
+ }
+
+ .msg-sucess {
+     color: green;
+     display: none;
+ }
+
+ .formError{
+     color: red;
+     padding: 0 0 30px 13px;
+ }
+
+
+
+#cart-menu {
+    display: block;
+    padding: 20px 26px 0 28px;
+    height: 100%;
+}
+#cart-menu img {
+    width: 23px;
+}
+
+#delete-session {
+    display: none;
+}
+#my-account {
+    display: none;
+}
+
+#admin-menu {
+    display: none;
+}
+
+
+ #welcome h4 {
+     font-size: 12px;
+     float: right;
+     padding-right: 106px;
+     margin-top: 8px;
+ }
+
+.fig-prod {
+    margin-top: -5%;
+    position: relative;
+    background-color: green;
+    max-width: 100%;
+    max-height: 100%;
+}
+.fig-prod-text  {
+    font-size: medium;
+    padding: 16px 0 20px 16px;
+    color: white;
+    font-weight: 500;
+    font-style: italic;
+}
+.fig-prod-text span {
+    font-size: large;
+    padding-right: 20px;
+    padding-left: 21px;
+}
+.container-imag{
+    position: relative;
+}
+
+.table-product {
+     padding: 30px;
+}
+
+
+
+.modal {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: #fafafa;
+    padding: 15px 0 0 66px;
+    max-height: 70%;
+    top: 40%;
+    width: 70%;
+    margin: auto;
+    overflow-y: unset;
+    border-radius: 2px;
+    z-index: 12;
+    will-change: top, opacity;
+   
+}
+
+.modal .modal-footer {
+    padding: 9px 37px;
+    height: 91px;   
+}
+select {
+    display: block;
+    height: 2rem;
+    margin: 7px 0 0 0px;
+    width: 62%;
+
+}
+.quant-group{
+    display: flex;
+
+}
+
+#quantity {
+    margin: 0 0 0 123px;
+}
+
+.close {
+    float: right;
+    padding: 0 38px 0 0;
+    font-size: 20px;
+    color: red;
+}

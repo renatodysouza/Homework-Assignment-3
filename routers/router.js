@@ -32,7 +32,7 @@ const router = {
     'account/delete': handlers.accountDelete,
 
     // Session Manager
-    'session/create': handlers.sessionCreate,
+    'login': handlers.sessionCreate,
     'session/delete': handlers.sessionDelete,
 
     // Menu Manager
@@ -42,12 +42,15 @@ const router = {
     'menu/delete': handlers.menuDelete,
 
     // Cart Manager
-    'cart/create': handlers.cartCreate,
+    'cart': handlers.cartCreate,
     'cart/edit': handlers.cartEdit,
     'cart/delete': handlers.cartDelete,
 
     // Checkout Manager
     'checkout/create': handlers.checkoutCreate,
+
+    // Products 
+    'product': handlers.products,
 
     // Static 
     'favicon.ico' : handlers.favicon,

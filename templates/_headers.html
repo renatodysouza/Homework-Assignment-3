@@ -4,15 +4,17 @@
     <!-- General settings -->
     <meta charset="utf-8">
     <meta http-equiv="content-language" content="en-us">
-    <base href="{global.appName}">
+    <base href=" {global.appName} ">
      <!-- Meta tags -->
-    <title>{head.title} | {global.appName}</title>
+    <title> This is the your shop</title>
    <meta name="description" content="head.description">
    <!-- Static assets -->
-   <link type="image/x-icon" rel="icon" href="favicon.ico">
-   <script type="text/javascript" charset="utf-8" src="public/app.js"></script>
-   <link rel="stylesheet"  href="public/css/materialize.css" />
-   <link rel="stylesheet"  href="public/style.css" />
+   <link type="image/x-icon" rel="icon" href="/public/favicon.ico">
+    <!-- Compiled and minified JavaScript -->
+   <script type="text/javascript" charset="utf-8" src="/public/app.js"></script>
+   <link rel="stylesheet"  href="/public/css/materialize.css" />
+   <link rel="stylesheet"  href="/public/style.css" />
+
 
 </head>
 <body class="{body.class}">
@@ -24,14 +26,21 @@
         <!-- logo -->
         <nav>
                 <div class="nav-wrapper">
-                  <a href="#" class="brand-logo">Logo</a>
+                  <a href="/" class="brand-logo">Pizza Faster</a>
                   <ul id="nav-mobile" class="right hide-on-med-and-down">
-                    <li><a href="">Sass</a></li>
-                    <li><a href="">Components</a></li>
-                    <li><a href="">JavaScript</a></li>
-                  </ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="menu">MENU</a></li>
+                    <li><a href="/account/create">SIGNUP</a></li>
+                    <li><a id="login" href="/login">LOGIN</a></li>
+                    <li><a id="my-account" href="">MY ACCOUNT</a></li>
+                    <li><a  id="delete-session">LOGOUT</a></li>
+                    <li><a  id="admin-menu" >ADMIN</a></li>
+                    <li><a id="cart-menu" ><img src="/public/img/c.png" alt="cart"></a></li>
+                 </ul>
+                              
                 </div>
               </nav>
+              <div id="welcome"></div>
 
     </div>
 
