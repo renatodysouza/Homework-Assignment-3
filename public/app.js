@@ -21,7 +21,8 @@ app.client = {};
 
 // Interface for making API calls
 app.client.request = function (headers, path, method, queryStringObject, payload, callback) {
-
+        
+    
     // Set default 
     headers = typeof (headers) == 'object' && headers !== null ? headers : {};
     path = typeof (path) == 'string' ? path : '/';
@@ -61,8 +62,12 @@ app.client.request = function (headers, path, method, queryStringObject, payload
 
 
     // If  there is a current session token set, add that as a header
-    if (app.config.sessionToken) {
-        xhr.setRequestHeader("token", app.getSessionToken());
+    if (localStorage.getItem('token')) {
+        const token = localStorage.getItem('token');
+        console.log(token);
+        
+              
+        xhr.setRequestHeader("token", token);
     }
 
     // When the request comes back. handle the response
@@ -84,6 +89,8 @@ app.client.request = function (headers, path, method, queryStringObject, payload
 
     // Send the payload string
     const payloadString = JSON.stringify(payload);
+    console.log(payloadString);
+    
     xhr.send(payloadString);
 
 
@@ -256,11 +263,13 @@ app.deleteSession = function () {
 // Set user cart
 app.setCartData = function (payload) {
     // Call the api
-    app.client.request(undefined, '/api/cart', 'post', undefined, payload, function (statusCode, responsePayload) {
+    app.client.request(undefined, '/api/cart', 'POST', undefined, payload, function (statusCode, responsePayload) {
         if (statusCode !== 200) {
-
+            console.log(responsePayload);
+            
         } else {
-
+             console.log(responsePayload);
+             
         }
     });
 
@@ -291,7 +300,6 @@ app.getSessionToken = function () {
     if (typeof (tokenString) == 'string' && tokenString !== 'false') {
         try {
             const token = JSON.parse(tokenString);
-            app.config.sessionToken = token;
             if (typeof (tokenString) == 'string') {
                 app.setLoggedInClass(true);
                 return token;
@@ -381,7 +389,7 @@ app.resetToken = function () {
         localStorage.removeItem('token');
 
 
-    }, 55 * 660000);
+    }, 1000 * 60 * 60);
 
 }
 
@@ -422,16 +430,6 @@ app.renewToken = function (callback) {
 
 };
 
-// Loop to renew token often
-app.tokenRenewalLoop = function () {
-    setInterval(function () {
-        app.renewToken(function (err) {
-            if (!err) {
-                console.log("Token renewed successfully @ " + Date.now());
-            }
-        });
-    }, 1000 * 60);
-};
 
 // Form response processor
 app.formResponseProcessor = function (formId, payload, responsePayload) {
@@ -479,9 +477,12 @@ app.btnCart = function () {
             target[i].addEventListener('click', function (e) {
                 // Verify if user is logged
                 if (app.getSessionToken() !== undefined) {
+                    app.productClicked(e.target);
+                                   
                     // Open modal
-                    document.getElementById('modal1').style.display = 'block';
-
+                    document.getElementById('modal1').className += ' modal-opened';
+                    
+                    
 
                 } else {
                     // Redirect from login
@@ -499,11 +500,25 @@ app.btnCart = function () {
 
 };
 
+// Pass data of the product clicked
+app.productClicked = function(productInfo) {
+    if(document.getElementById('pizza-name')) {
+        const idTarget = productInfo.id;
+        const nameProd = productInfo.name.toUpperCase();
+        app.preparedPayloadToCart(idTarget, nameProd);
+        
+    }
+    
+
+}
+
+
+
 // Close modal 
 app.closeModal = function () {
-    if (document.getElementById('close')) {
-        document.getElementById('close').addEventListener('click', function () {
-            document.getElementById('modal1').style.display = 'none';
+    if (document.getElementById('close-modal')) {
+        document.getElementById('close-modal').addEventListener('click', function () {
+            document.getElementById('modal1').className = 'modal';
         });
     }
 };
@@ -518,43 +533,75 @@ app.getProduct = function () {
 
         } else {
 
-            // Verify quantity of the menus
-            const menuLength = responsePayload.length / 2;
+            try {
 
-            for (let menu of responsePayload) {
+                   app.productsView(responsePayload, function() {
 
-                try {
-                    // Print products in the index
-                    let tewmp = document.querySelector('#products').innerHTML += `
-            
-                <div class="col s6">
-                <a href=""> <img class="responsive-img" src="public/img/pizza.jpeg">
-                    <div class="fig-prod" id=${menu.id}>
-                        <figcaption class="fig-prod-text">${menu.product} <span>${menu.price} €</span></figcaption>
-                        <a id="product-name" data-target="modal1" class="waves-effect waves-light btn-small modal-trigger">Order Now</a>
-                   </div>
-      
-                </a>
-               
-               </div>`
+                        
+
+                    });
+          
 
                 } catch (error) {
 
                 }
 
 
-            }
-
         }
-    });
 
+    });   
+
+};
+
+
+// Generate product in thwe view
+app.productsView = function (payload,callback) {
+    for (let menu of payload) {
+        // Print products in the index
+        let tewmp = document.querySelector('#products').innerHTML += `
+            
+        <div class="col s6">
+        <a href=""> <img class="responsive-img" src="public/img/pizza.jpeg">
+            <div class="fig-prod" id=${menu.id}>
+                <figcaption class="fig-prod-text">${menu.product} <span>${menu.price} €</span></figcaption>
+                <a id='${menu.id}' name='${menu.product}' data-target="modal1"  class="waves-effect waves-light btn-small modal-trigger">Order Now</a>
+           </div>
+
+        </a>
+       
+       </div>`
+       app.btnCart();
+       callback(true);
+    };   
+    
 };
 
 // Verify if user is logged
 app.verifyLoginStatus = function () {
     let session = app.getSessionToken();
 
+};
+
+// Create payload with received data from modal
+app.preparedPayloadToCart = function(id, valueQtd) {
+
+    // Get event click in the botton add in my cart
+    document.getElementById('btn-add-my-cart').addEventListener('click', function(){
+        const qtd = document.getElementById('qtd').value;
+        const cartPayload = {
+            'id': id,
+            'qtd': parseInt(qtd)
+        }
+       
+       app.setCartData(cartPayload);
+
+    });
+   
+     
+
 }
+
+
 // Init (bootstrapping)
 app.init = function () {
     // Bind all create user form submissions
@@ -562,10 +609,10 @@ app.init = function () {
     app.createSession();
     app.deleteSession();
     app.getSessionToken();
-    app.btnCart();
     app.closeModal();
     app.getProduct();
     app.resetToken();
+   
     // app.verifyLoginStatus();
 
 
