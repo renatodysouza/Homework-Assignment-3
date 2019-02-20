@@ -66,8 +66,9 @@ app.client.request = function (headers, path, method, queryStringObject, payload
         const token = localStorage.getItem('token');
         console.log(token);
         
+               
               
-        xhr.setRequestHeader("token", token);
+        xhr.setRequestHeader("token", token.replace(/\"/g, ""));
     }
 
     // When the request comes back. handle the response
@@ -89,8 +90,6 @@ app.client.request = function (headers, path, method, queryStringObject, payload
 
     // Send the payload string
     const payloadString = JSON.stringify(payload);
-    console.log(payloadString);
-    
     xhr.send(payloadString);
 
 
@@ -265,7 +264,7 @@ app.setCartData = function (payload) {
     // Call the api
     app.client.request(undefined, '/api/cart', 'POST', undefined, payload, function (statusCode, responsePayload) {
         if (statusCode !== 200) {
-            console.log(responsePayload);
+            window.location.href = '/cart';
             
         } else {
              console.log(responsePayload);
@@ -285,6 +284,23 @@ app.getCartData = function () {
             console.log('Doesnt exist any cart');
 
         } else {
+
+            const cartView = 
+                `<div id="order-cart"><h2 id="order">Order</h2>
+                <p>${responsePayload.order}</p>
+                </div>
+                <div id="products-cart">
+                <h3>Produts</h3>
+                 <p>${responsePayload.products[0].product}</p>
+                <p>${responsePayload.products[0].description}</p>
+                </div>
+                <div id="total-price"><h4>Total</h4>
+                <p>${responsePayload.priceTotal}</p>
+                </div>`;
+                           
+                
+            document.getElementById('table-carts').innerHTML = cartView;
+            
             // If successful, send to form response processor
             return responsePayload;
         }
@@ -298,9 +314,12 @@ app.getSessionToken = function () {
     const tokenString = localStorage.getItem('token');
 
     if (typeof (tokenString) == 'string' && tokenString !== 'false') {
+    
+        
         try {
-            const token = JSON.parse(tokenString);
+            
             if (typeof (tokenString) == 'string') {
+               
                 app.setLoggedInClass(true);
                 return token;
 
@@ -331,7 +350,8 @@ app.setLoggedInClass = function (add) {
     var targetLogin = document.getElementById('login');
     var targetAdminMenu = document.getElementById('admin-menu');
     var targetWelcome_Msg = document.getElementById('welcome');
-
+    
+    
 
     if (add) {
         targetAdminMenu.style.display = 'none';
@@ -362,11 +382,8 @@ app.setSessionToken = function (token) {
 
     if (token) {
 
-        app.config.sessionToken = token;
-        const tokenString = JSON.stringify(token);
 
-
-        localStorage.setItem('token', tokenString);
+        localStorage.setItem('token', token);
         app.setLoggedInClass(true);
         app.resetToken();
 
@@ -446,19 +463,18 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
     }
     if (formId == 'login_create') {
         // Set token in local storage
+        
         app.setSessionToken(responsePayload.tokenId);
 
-        // Redirect to menu
-        // window.location.href = '/';
+      
          // Redirec to home url
-         window.location.href = '/';
+          window.location.href = '/';
 
     }
     if (formId == 'delete-session') {
         // Delete token in local storage 
         localStorage.setItem('token', false);
-        // Set token false to app.config.sessionToken
-        app.config.sessionToken = false;
+       
 
 
         // Redirec to home url
@@ -476,7 +492,9 @@ app.btnCart = function () {
 
             target[i].addEventListener('click', function (e) {
                 // Verify if user is logged
-                if (app.getSessionToken() !== undefined) {
+                console.log(app.getSessionToken());
+                
+                if (app.getSessionToken() == undefined) {
                     app.productClicked(e.target);
                                    
                     // Open modal
@@ -486,7 +504,7 @@ app.btnCart = function () {
 
                 } else {
                     // Redirect from login
-                    window.location.href = '/login';
+                  //  window.location.href = '/login';
                 }
 
             })
@@ -511,7 +529,6 @@ app.productClicked = function(productInfo) {
     
 
 }
-
 
 
 // Close modal 
@@ -578,7 +595,12 @@ app.productsView = function (payload,callback) {
 
 // Verify if user is logged
 app.verifyLoginStatus = function () {
-    let session = app.getSessionToken();
+    if(localStorage.getItem('token')){
+        app.setLoggedInClass(true);
+    }else {
+        app.setLoggedInClass(false);
+
+    }
 
 };
 
@@ -588,11 +610,11 @@ app.preparedPayloadToCart = function(id, valueQtd) {
     // Get event click in the botton add in my cart
     document.getElementById('btn-add-my-cart').addEventListener('click', function(){
         const qtd = document.getElementById('qtd').value;
+        const idStringfy = id.toString();
         const cartPayload = {
-            'id': id,
-            'qtd': parseInt(qtd)
+            'id': `${idStringfy}`,
+            'qtd':qtd
         }
-       
        app.setCartData(cartPayload);
 
     });
@@ -612,9 +634,9 @@ app.init = function () {
     app.closeModal();
     app.getProduct();
     app.resetToken();
-   
-    // app.verifyLoginStatus();
-
+   // app.preparedPayloadToCart();
+    app.verifyLoginStatus();
+    app.getCartData();
 
 
 

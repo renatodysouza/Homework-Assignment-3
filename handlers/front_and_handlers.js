@@ -216,6 +216,46 @@ handlers.cartCreate = function (data, callback) {
 };
 
 
+// Checkout order
+handlers.checkoutCreate = function (data, callback) {
+    if (data.method == 'get') {
+        // Prepare data for interpolation
+        const templateData = {
+
+        };
+
+        // verify if user has permission
+        
+
+        // Read template as string
+        helpers.getTemplate('checkout-order', templateData, function (err, str) {
+            if (!err && str) {
+
+                // Add the universal header and footer 
+                helpers.univesalTemplates(str, templateData, function (err, str) {
+                    if (!err) {
+                        callback(200, str, 'html');
+                    } else {
+                        callback(500, undefined, 'html');
+                    }
+                });
+
+            } else {
+                callback(500, undefined, 'html');
+            }
+
+        });
+
+
+
+
+    } else {
+        callback(405, undefined, 'html');
+    }
+
+
+};
+
 // Static 
 
 // Favicon

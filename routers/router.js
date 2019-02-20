@@ -47,7 +47,7 @@ const router = {
     'cart/delete': handlers.cartDelete,
 
     // Checkout Manager
-    'checkout/create': handlers.checkoutCreate,
+    'checkout/order': handlers.checkoutCreate,
 
     // Products 
     'product': handlers.products,
