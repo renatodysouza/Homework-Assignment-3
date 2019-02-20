@@ -5,9 +5,9 @@
 *
  */
 
- // Dependency
- const handlersApi = require('../handlers/api_handlers');
- const handlers = require('../handlers/front_and_handlers');
+// Dependency
+const handlersApi = require('../handlers/api_handlers');
+const handlers = require('../handlers/front_and_handlers');
 
 
 
@@ -21,7 +21,8 @@ const router = {
     'api/menus': handlersApi.menus,
     'api/cart': handlersApi.cart,
     'api/order': handlersApi.order,
-    'api/cart/checkout': handlersApi.checkout,
+    'api/ckeckout': handlersApi.checkout,
+
 
     // Router Front-end
     '': handlers.index,  // Index
@@ -53,10 +54,10 @@ const router = {
     'product': handlers.products,
 
     // Static 
-    'favicon.ico' : handlers.favicon,
+    'favicon.ico': handlers.favicon,
     'public': handlers.public
 
-    
+
 
 
 
@@ -74,5 +75,5 @@ const router = {
 
 
 
- // Exports router
- module.exports = router;
+// Exports router
+module.exports = router;

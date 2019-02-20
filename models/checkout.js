@@ -39,6 +39,7 @@ checkoutModel._checkout = {};
 // Optional data: none
 
 checkoutModel._checkout.post = function (data, callback) {
+    
     const tokenStripe = 'tok_visa';
     const token = typeof (data.headers.token) == 'string' && data.headers.token.length == 20 ? data.headers.token : false;
     if (token && tokenStripe) {

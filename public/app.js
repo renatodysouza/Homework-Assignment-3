@@ -19,10 +19,11 @@ app.config = {
 // AJAX client (for the restful api)
 app.client = {};
 
+
 // Interface for making API calls
 app.client.request = function (headers, path, method, queryStringObject, payload, callback) {
-        
-    
+
+
     // Set default 
     headers = typeof (headers) == 'object' && headers !== null ? headers : {};
     path = typeof (path) == 'string' ? path : '/';
@@ -65,9 +66,9 @@ app.client.request = function (headers, path, method, queryStringObject, payload
     if (localStorage.getItem('token')) {
         const token = localStorage.getItem('token');
         console.log(token);
-        
-               
-              
+
+
+
         xhr.setRequestHeader("token", token.replace(/\"/g, ""));
     }
 
@@ -94,6 +95,116 @@ app.client.request = function (headers, path, method, queryStringObject, payload
 
 
 };
+
+
+// Bind form cart checkout
+app.bindFormCheckout = function () {
+
+    if (document.getElementById('form-checkout')) {
+
+        document.getElementById('form-checkout').addEventListener("submit", function (e) {
+            // Stop it from submitting
+            e.preventDefault();
+            const formId = this.id;
+            // Turn the inputs into a payload
+            const payload = {};
+            const elements = this.elements;
+            const path = this.action;
+            var limit = elements.length
+            const method = this.method.toUpperCase();
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].type !== 'submit') {
+
+                    const valueOfElement = elements[i].value;
+                    payload[elements[i].name] = valueOfElement;
+
+                };
+            }
+
+            app.client.request(undefined, '/api/cart', 'get', undefined, undefined, function (statusCode, responsePayload) {
+                // Display an error on the form if needed
+                if (statusCode !== 200) {
+
+                    console.log(responsePayload);
+
+                } else {
+                    // Adding order in payload
+                    payload['order'] = responsePayload;
+
+                    // Call the API
+                    app.client.request(undefined, path, method, undefined, payload, function (statusCode, responsePayload) {
+                        // Display an error on the form if needed
+                        if (statusCode !== 200) {
+                            // Try to get the error from the api, or set a default error message
+                            var error = typeof (responsePayload.error) == 'string' ? responsePayload.error : 'An error has occured, please try again';
+
+                            // Set the formError field with the error text
+                            document.querySelector("#" + formId + " .formError").innerHTML = error;
+
+                            // Show (unhide) the form error field on the form
+                            document.querySelector("#" + formId + " .formError").style.display = 'block';
+
+                        } else {
+                            // If successful, send to form response processor
+                            app.formResponseProcessor(formId, payload, responsePayload);
+                        }
+                    });
+
+                }
+
+            });
+
+        });
+    }
+
+}
+
+
+// Bind form cart checkout
+app.bindFormPayment = function () {
+
+    if (document.getElementById('payment-form')) {
+
+        document.getElementById('payment-form').addEventListener("submit", function (e) {
+            // Stop it from submitting
+            e.preventDefault();
+            const formId = this.id;
+            // Turn the inputs into a payload
+            const payload = {};
+            const elements = this.elements;
+            const path = this.action;
+            var limit = elements.length
+            const method = this.method.toUpperCase();
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].type !== 'submit') {
+
+                    const valueOfElement = elements[i].value;
+                    payload[elements[i].name] = valueOfElement;
+
+                };
+            }
+            // Call the API
+            app.client.request(undefined, path, method, undefined, payload, function (statusCode, responsePayload) {
+                // Display an error on the form if needed
+                if (statusCode !== 200) {
+                    // Try to get the error from the api, or set a default error message
+                    var error = typeof (responsePayload.error) == 'string' ? responsePayload.error : 'An error has occured, please try again';
+
+                    // Set the formError field with the error text
+                    document.querySelector("#" + formId + " .formError-pay").innerHTML = error;
+
+                    // Show (unhide) the form error field on the form
+                    document.querySelector("#" + formId + " .formError-pay").style.display = 'block';
+
+                } else {
+                    // If successful, send to form response processor
+                    app.formResponseProcessor(formId, payload, responsePayload);
+                }
+            });
+        });
+    }
+
+}
 
 
 // Bind the form
@@ -151,6 +262,7 @@ app.bindFormsCreateUser = function () {
 
 
 };
+
 
 // Create session 
 app.createSession = function () {
@@ -217,40 +329,10 @@ app.deleteSession = function () {
 
         document.getElementById('delete-session').addEventListener('click', function (e) {
             e.preventDefault();
-            const idMenu = this.id;
-            const tokenSession = app.getSessionToken();
 
-            if (typeof (tokenSession) == 'string' && tokenSession.length > 0) {
+            const token = window.localStorage.removeItem('token');
 
-                const tokenObject = {
-                    'id': tokenSession
-                };
-                // Call the API
-                app.client.request(undefined, '/api/tokens', 'delete', tokenObject, undefined, function (statusCode, responsePayload) {
-                    // Display an error on the form if needed
-                    if (statusCode !== 200) {
-                        // If token doesnt exist, set false
-                        app.config.sessionToken = false;
-                        localStorage.setItem('token', false);
-
-                        // Try to get the error from the api, or set a default error message
-                        var error = typeof (responsePayload.error) == 'string' ? responsePayload.error : 'An error has occured, please try again';
-
-
-                    } else {
-                        // If successful, send to form response processor
-                        app.formResponseProcessor(idMenu, undefined, responsePayload);
-
-                    }
-                });
-
-            } else {
-                // If token doesnt exist, set false
-                app.config.sessionToken = false;
-
-                window.location.href = '/';
-            }
-
+            app.setLoggedInClass(false);       
         });
 
 
@@ -265,10 +347,10 @@ app.setCartData = function (payload) {
     app.client.request(undefined, '/api/cart', 'POST', undefined, payload, function (statusCode, responsePayload) {
         if (statusCode !== 200) {
             window.location.href = '/cart';
-            
+
         } else {
-             console.log(responsePayload);
-             
+            console.log(responsePayload);
+
         }
     });
 
@@ -276,71 +358,42 @@ app.setCartData = function (payload) {
 
 //  Get user cart data
 app.getCartData = function () {
-
-    // Call the API
-    app.client.request(undefined, '/api/cart', 'get', undefined, undefined, function (statusCode, responsePayload) {
-        // Display an error on the form if needed
-        if (statusCode !== 200) {
-            console.log('Doesnt exist any cart');
-
-        } else {
-
-            const cartView = 
-                `<div id="order-cart"><h2 id="order">Order</h2>
-                <p>${responsePayload.order}</p>
-                </div>
-                <div id="products-cart">
-                <h3>Produts</h3>
-                 <p>${responsePayload.products[0].product}</p>
-                <p>${responsePayload.products[0].description}</p>
-                </div>
-                <div id="total-price"><h4>Total</h4>
-                <p>${responsePayload.priceTotal}</p>
-                </div>`;
-                           
-                
-            document.getElementById('table-carts').innerHTML = cartView;
-            
-            // If successful, send to form response processor
-            return responsePayload;
-        }
-    });
-    //
-}
-
-// Get the session token from localstorage and set it in the app.config object
-app.getSessionToken = function () {
-
-    const tokenString = localStorage.getItem('token');
-
-    if (typeof (tokenString) == 'string' && tokenString !== 'false') {
-    
-        
-        try {
-            
-            if (typeof (tokenString) == 'string') {
-               
-                app.setLoggedInClass(true);
-                return token;
+    if (document.getElementById('table-carts')) {
+        // Call the API
+        app.client.request(undefined, '/api/cart', 'get', undefined, undefined, function (statusCode, responsePayload) {
+            // Display an error on the form if needed
+            if (statusCode !== 200) {
+                console.log('Doesnt exist any cart');
 
             } else {
-                app.setLoggedInClass(false);
 
-                return false;
+                const cartView =
+                    `<div id="order-cart"><h2 id="order">Order</h2>
+            <p>${responsePayload.order}</p>
+            </div>
+            <div id="products-cart">
+            <h3>Produts</h3>
+             <p>${responsePayload.products[0].product}</p>
+            <p>${responsePayload.products[0].description}</p>
+            </div>
+            <div id="total-price"><h4>Total</h4>
+            <p>${responsePayload.priceTotal}</p>
+            </div>`;
+
+
+                document.getElementById('table-carts').innerHTML = cartView;
+
+                // If successful, send to form response processor
+                return responsePayload;
             }
+        });
 
-        } catch (e) {
-
-            app.config.sessionToken = false;
-            app.setLoggedInClass(false);
-
-        }
-    } else {
-
-        app.setLoggedInClass(false);
     }
 
-};
+
+}
+
+
 
 // Set or remove the loggedin class from the body
 app.setLoggedInClass = function (add) {
@@ -350,8 +403,8 @@ app.setLoggedInClass = function (add) {
     var targetLogin = document.getElementById('login');
     var targetAdminMenu = document.getElementById('admin-menu');
     var targetWelcome_Msg = document.getElementById('welcome');
-    
-    
+
+
 
     if (add) {
         targetAdminMenu.style.display = 'none';
@@ -399,10 +452,11 @@ app.setSessionToken = function (token) {
 app.resetToken = function () {
 
     setInterval(() => {
-         localStorage.removeItem('token');
-         app.renewToken(function(token){
-             
-         });
+
+        localStorage.removeItem('token');
+        app.renewToken(function (token) {
+
+        });
         localStorage.removeItem('token');
 
 
@@ -461,20 +515,43 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
 
 
     }
+    if (formId == 'payment-form') {
+        // Hide form payment
+        document.getElementById('panel').style.display = 'none';
+        // Hide form order
+        document.getElementById('form-checkout').style.display = 'none';
+
+        // Show mensage
+        document.getElementById('msg-payment').innerHTML = `<p>Payment sucessfully. Your was send for email.</p>`;
+
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 3900);
+
+    }
     if (formId == 'login_create') {
         // Set token in local storage
-        
+
         app.setSessionToken(responsePayload.tokenId);
 
-      
-         // Redirec to home url
-          window.location.href = '/';
+
+        // Redirec to home url
+        window.location.href = '/';
+
+    }
+
+    if (formId == 'form-checkout') {
+
+        // Show form payment
+        document.getElementById('panel').style.display = 'block';
+        // Hidde form order
+        document.getElementById('form-checkout').style.display = 'none';
 
     }
     if (formId == 'delete-session') {
         // Delete token in local storage 
         localStorage.setItem('token', false);
-       
+
 
 
         // Redirec to home url
@@ -483,6 +560,8 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
 
     }
 };
+
+
 // Create effect houver in imag product
 app.btnCart = function () {
     if (document.getElementsByClassName('btn-small')) {
@@ -492,19 +571,19 @@ app.btnCart = function () {
 
             target[i].addEventListener('click', function (e) {
                 // Verify if user is logged
-                console.log(app.getSessionToken());
-                
-                if (app.getSessionToken() == undefined) {
+                const token = window.localStorage.getItem('token');
+                console.log(token)
+                if (token !== null) {
                     app.productClicked(e.target);
-                                   
+
                     // Open modal
                     document.getElementById('modal1').className += ' modal-opened';
-                    
-                    
+
+
 
                 } else {
                     // Redirect from login
-                  //  window.location.href = '/login';
+                    window.location.href = '/login';
                 }
 
             })
@@ -519,14 +598,14 @@ app.btnCart = function () {
 };
 
 // Pass data of the product clicked
-app.productClicked = function(productInfo) {
-    if(document.getElementById('pizza-name')) {
+app.productClicked = function (productInfo) {
+    if (document.getElementById('pizza-name')) {
         const idTarget = productInfo.id;
         const nameProd = productInfo.name.toUpperCase();
         app.preparedPayloadToCart(idTarget, nameProd);
-        
+
     }
-    
+
 
 }
 
@@ -552,32 +631,32 @@ app.getProduct = function () {
 
             try {
 
-                   app.productsView(responsePayload, function() {
+                app.productsView(responsePayload, function () {
 
-                        
 
-                    });
-          
 
-                } catch (error) {
+                });
 
-                }
+
+            } catch (error) {
+
+            }
 
 
         }
 
-    });   
+    });
 
 };
 
 
 // Generate product in thwe view
-app.productsView = function (payload,callback) {
+app.productsView = function (payload, callback) {
     for (let menu of payload) {
         // Print products in the index
         let tewmp = document.querySelector('#products').innerHTML += `
             
-        <div class="col s6">
+        <div class="col s6 nproduct">
         <a href=""> <img class="responsive-img" src="public/img/pizza.jpeg">
             <div class="fig-prod" id=${menu.id}>
                 <figcaption class="fig-prod-text">${menu.product} <span>${menu.price} €</span></figcaption>
@@ -587,17 +666,17 @@ app.productsView = function (payload,callback) {
         </a>
        
        </div>`
-       app.btnCart();
-       callback(true);
-    };   
-    
+        app.btnCart();
+        callback(true);
+    };
+
 };
 
 // Verify if user is logged
 app.verifyLoginStatus = function () {
-    if(localStorage.getItem('token')){
+    if (localStorage.getItem('token')) {
         app.setLoggedInClass(true);
-    }else {
+    } else {
         app.setLoggedInClass(false);
 
     }
@@ -605,21 +684,21 @@ app.verifyLoginStatus = function () {
 };
 
 // Create payload with received data from modal
-app.preparedPayloadToCart = function(id, valueQtd) {
+app.preparedPayloadToCart = function (id, valueQtd) {
 
     // Get event click in the botton add in my cart
-    document.getElementById('btn-add-my-cart').addEventListener('click', function(){
+    document.getElementById('btn-add-my-cart').addEventListener('click', function () {
         const qtd = document.getElementById('qtd').value;
         const idStringfy = id.toString();
         const cartPayload = {
             'id': `${idStringfy}`,
-            'qtd':qtd
+            'qtd': qtd
         }
-       app.setCartData(cartPayload);
+        app.setCartData(cartPayload);
 
     });
-   
-     
+
+
 
 }
 
@@ -628,15 +707,16 @@ app.preparedPayloadToCart = function(id, valueQtd) {
 app.init = function () {
     // Bind all create user form submissions
     app.bindFormsCreateUser();
+    app.bindFormCheckout();
     app.createSession();
     app.deleteSession();
-    app.getSessionToken();
     app.closeModal();
     app.getProduct();
     app.resetToken();
-   // app.preparedPayloadToCart();
     app.verifyLoginStatus();
     app.getCartData();
+    app.bindFormPayment();
+    app.verifyLoginStatus();
 
 
 

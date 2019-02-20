@@ -84,7 +84,6 @@
     position: relative;
     background-color: green;
     max-width: 100%;
-    max-height: 100%;
 }
 .fig-prod-text  {
     font-size: medium;
@@ -175,6 +174,16 @@ input:invalid {
     font-size: 18px;
 }
 
+.nproduct {
+    padding-right: 312px !important;
+    margin-bottom: 43px;
+}
+
+#products {
+    position: relative;
+    padding-left: 136px;
+}
+
 #products-cart h3{
     font-size: 18px;
 }
@@ -189,4 +198,8 @@ input:invalid {
 }
 #order-form {
     padding-top: 40px;
+}
+
+.panel {
+    display: block;
 }

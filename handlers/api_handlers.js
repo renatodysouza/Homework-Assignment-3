@@ -19,7 +19,7 @@ const tokenMode = require('../models/token');
 const menuModel = require('../models/menu');
 const cartModel = require('../models/cart');
 const checkoutModel = require('../models/checkout');
-
+const orderModel = require('../models/order');
 
 
 // Container handlers
@@ -38,6 +38,10 @@ handlersApi.cart = cartModel.carts;
 
 // Model Menus
 handlersApi.menus = menuModel.menus;
+
+
+// Model Order
+handlersApi.order = orderModel.order;
 
 // Model Checkout
 handlersApi.checkout = checkoutModel.checkout;
