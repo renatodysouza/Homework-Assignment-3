@@ -75,13 +75,15 @@ console.log(menuId ,qtd  )
                             const priceT = cart.priceTotal;
                             const newOrderPrice = menuData.price * qtd;
                             const priceFn =  priceT + newOrderPrice;
+                            
                             console.log(priceFn)
+
                             const cartObject = {
                                 'order': dataToken.phone+'_cart',
                                 'products': [menuData, cart],
                                 'priceTotal': newOrderPrice + priceT,
                                 'order delivered': false,
-                                'timeUpdadeOrder': date.toLocaleTimeString(),
+                                'created_at': Date.now(),
                                 'updateOrder': date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
                             };
 

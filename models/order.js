@@ -86,8 +86,21 @@ orderModel._order.post = function (data, callback) {
                         callback(200, order);
 
                     } else {
-                        console.log(err)
-                        callback(500, { 'Error': 'Could not create the order' });
+                        
+                        _data.create('orders', dataToken.phone, orderObject, function(err, order){
+
+                            if(!err) {
+                                callback(200, order);
+                            }else {
+
+                                callback(500, { 'Error': 'Could not create the order' });
+                            }
+
+                        });
+                        
+                        
+                        
+                        
                     }
 
                 });

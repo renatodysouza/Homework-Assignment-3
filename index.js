@@ -6,20 +6,26 @@
 
 
 // Dependencies
-const server =require('./lib/server');
+const server = require('./lib/server');
 const works = require('./lib/workers');
- 
+const cli = require('./lib/cli');
+
 // Declare the app
 const app = {};
 
 // Init function
-app.init = function() {
+app.init = function () {
     // Start the server
     server.init();
 
     // Start the workers
-      works.init();
- 
+    works.init();
+
+    // Start cli, but make shure it starts last
+    setTimeout(() => {
+        cli.init();
+    }, 50);
+
 };
 
 // Execute function

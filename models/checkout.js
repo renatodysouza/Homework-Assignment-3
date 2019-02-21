@@ -68,21 +68,31 @@ checkoutModel._checkout.post = function (data, callback) {
                                     'creatDate': date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
                                     'time': date.toLocaleTimeString()
                                 };
-                                 console.log('cheguei');
                                 // Call api stripe for payment
                                 helpers.processPayment(tokenStripe, cartData.priceTotal, function (status) {
+
+
                                     if (status == 200 || status == 201) {
 
                                         helpers.sendEmail(cartObject, function (send) {
+
                                             if (send == 200 || send == 201) {
                                                 // Save payment order
                                                 cartObject.status = 'closed';
-                                                _data.create('checkouts', cartData.cartId.id, cartObject, function (err, dataCheckers) {
+                                                _data.create('orders', dataToken.phone, cartObject, function (err, dataCheckers) {
                                                     if (!err) {
-                                                        callback(200);
+                                                        callback(200, dataCheckers);
 
                                                     } else {
-                                                        callback(400, 'could not save the payment order');
+                                                        _data.update('orders', dataToken.phone, cartObject, function (err, dataCheckers) {
+                                                            if (!err) {
+                                                                callback(200, dataCheckers);
+        
+                                                            } else {
+                                                                callback(400, 'could not save the payment order');
+                                                            }
+        
+                                                        });
                                                     }
 
                                                 });

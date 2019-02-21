@@ -346,10 +346,11 @@ app.setCartData = function (payload) {
     // Call the api
     app.client.request(undefined, '/api/cart', 'POST', undefined, payload, function (statusCode, responsePayload) {
         if (statusCode !== 200) {
-            window.location.href = '/cart';
+           
 
         } else {
-            console.log(responsePayload);
+
+            window.location.href = '/cart';
 
         }
     });
@@ -505,10 +506,10 @@ app.renewToken = function (callback) {
 // Form response processor
 app.formResponseProcessor = function (formId, payload, responsePayload) {
     var functionToCall = false;
-
+    console.log(formId)
     if (formId == 'accountCreate') {
         // the account has been created successfully
-        //Alert sucessfully create user
+        //Alert sucessfully create user 
         alert('Your account was create with sucess.');
         // Redirec to home url
         window.location.href = '/session/create';
@@ -526,7 +527,7 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
 
         setTimeout(() => {
             window.location.href = '/';
-        }, 3900);
+        }, 5900);
 
     }
     if (formId == 'login_create') {
@@ -562,7 +563,6 @@ app.formResponseProcessor = function (formId, payload, responsePayload) {
 };
 
 
-// Create effect houver in imag product
 app.btnCart = function () {
     if (document.getElementsByClassName('btn-small')) {
         const target = document.getElementsByClassName('btn-small');
